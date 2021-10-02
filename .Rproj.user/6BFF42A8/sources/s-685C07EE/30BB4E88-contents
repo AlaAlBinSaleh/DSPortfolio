@@ -1,0 +1,119 @@
+---
+title: "Diamond_Analysis"
+author: "Ala Albin Saleh"
+date: "10/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# load packages
+library(ggplot2)
+library(dplyr)
+library(DT)
+```
+## Results {.tabset}
+
+### Dataset Description: 
+
+The diamonds dataset is  build-in ggplot2 and it contains 10 attributes and entries of 53940 diamonds. 
+
+attribute  |Description 
+------------- | -------------
+price    |    Price in US dollars 
+carat       |     Weight of the diamond
+cut      |    Quality of the cut 
+color      |    Diamond's colour
+clarity      |    Measurement of how clear the diamond
+x      |    Length of diamonds in mm
+y      |    Width of diamonds in mm 
+z       |     Depth of diamonds in mm 
+depth      |    Total depth percentage 
+table      |    Width of top of diamond relative to widest point 
+
+**Preview of the diamond dataset (top 100 rows)**
+
+```{r diamonds, echo=FALSE, eval=TRUE, warning = FALSE}
+    diamonds <- as_tibble(diamonds)
+    datatable( diamonds[1:100,])
+```
+### Descriptive Statistics:
+
+- **The mean:** The sum of all values divided by the total numbers of values
+- **The median:** The middle value in set of values
+- **Range:**: The difference between the maximum value and minimum value
+- **IQR:** The difference between the tird quantile (Q3) and first quantile (Q1). 
+- **Variance:** Thhe average of the squared differences between each indiviual value and the mean
+- **Standard Deviation:** The square root of the variance
+
+```{r , echo=FALSE, eval=TRUE }
+       Des_stats  <-  diamonds %>%
+          group_by(clarity)  %>%
+           summarise( Mean = mean(price), 
+            Median = median(price), 
+            Range= diff(range(price)), 
+            IQR = IQR(price), 
+            Variance = var(price), 
+            Standard_Deviation = sd(price)) 
+        Des_stats
+```
+**NOTE:** the above statistics are base on the clarity of a diamond. 
+
+### Inferential Statistics: 
+**- T-Test**
+
+let the Null hypothesis be that the carat has no effect on the price. 
+*H0: carat and price are independent*
+
+```{r , echo=TRUE, eval=TRUE }
+ttest <- t.test(diamonds$carat, diamonds$price)
+ttest
+```
+Decision: 
+
+```{r , echo=FALSE, eval=TRUE }
+#assuming the 5% significance level 
+sl_alpha = 0.05
+if (ttest$p.value <= 0.05){ 
+  print("Rejecting the Null hypothesis") }
+  # else {}
+  # print("Failed to reject the Null hypothesis") }
+```
+
+**- Linear regression: **
+```{r , echo=TRUE, eval=TRUE }
+  LinearModel <- lm(price ~ clarity, data= diamonds)
+```
+```{r , echo=FALSE, eval=TRUE }
+    LinearModel
+```
+  
+**-ANOVA: **
+
+```{r , echo=TRUE, eval=TRUE }
+anova <- aov(price ~ clarity, data = diamonds)
+```
+   
+```{r , echo=FALSE, eval=TRUE }
+anova 
+```    
+### Data Visualization: 
+- This Scatter plot illustrate the relationship between carat and price
+```{r, echo=FALSE}
+ggplot(diamonds, aes(price, carat, col=clarity)) +
+  geom_point(shape = 20) + 
+  labs(x = "Price in USD",
+       y = "Carat ",
+       title = "The Diamonds Dataset: Price vs Carat",
+       color = "Clarity") + 
+  theme_classic() 
+
+```
+- This Scatter plot illustrate the relationship between carat and price with smoothing trend {lm}
+```{r, echo=FALSE }
+ggplot(diamonds, aes(price, carat)) +
+  geom_point(shape = 20, alpha= 0.3) + 
+  theme_classic() + 
+  stat_smooth(method ="lm", se=FALSE)
+```
+
