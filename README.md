@@ -5,4 +5,5 @@ This Stage(1) of Data Science portfolio.
     * Descriptive Analysis.
     * Inferential Statistics.
     * Data Visualization.
+    
 NOTE: the diamonds dataset is a build-in dataset in ggplot2.
